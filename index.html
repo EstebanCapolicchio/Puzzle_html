@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lights Out</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #board {
+            display: grid;
+            grid-template-columns: repeat(5, 100px);
+            grid-template-rows: repeat(5, 100px);
+            gap: 5px;
+        }
+        .tile {
+            width: 100px;
+            height: 100px;
+            cursor: pointer;
+            background-size: cover;
+        }
+        .on {
+            background-image: url('images/Moa/light_on_0_0_0.jpg');
+            background-size: cover;
+        }
+        .off {
+            background-image: url('images/Moa/light_off_0_0_1.jpg');
+            background-size: cover;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Lights Out</h1>
+<div id="board"></div>
+<p>Movimientos restantes: <span id="movesRemaining"></span></p>
+
+<script>
+    // Tamaño del tablero
+    const SIZE = 5;
+
+    // Número inicial de movimientos
+    let movesRemaining = 5;
+    document.getElementById('movesRemaining').innerText = movesRemaining;
+
+    // Imágenes para las casillas
+    const edgeOffImage = 'images/Human/light_on.jpg';
+    const edgeOnImage = 'images/Human/light_off.jpg';
+    
+    const innerOffImages = [
+        'images/Moa/light_on.jpg',
+        'images/Shagambi/light_on.jpg',
+        'images/Kubazan/light_on.jpg',
+        'images/Obolaka/light_on.jpg',
+        'images/Unhk/light_on.jpg',
+        'images/Ijin/light_on.jpg',
+        'images/Papazotl/light_on.jpg',
+        'images/Nangnang/light_on.jpg',
+        'images/Wongo/light_on.jpg'
+    ];
+    
+    const innerOnImages = [
+        'images/Moa/light_off.jpg',
+        'images/Shagambi/light_off.jpg',
+        'images/Kubazan/light_off.jpg',
+        'images/Obolaka/light_off.jpg',
+        'images/Unhk/light_off.jpg',
+        'images/Ijin/light_off.jpg',
+        'images/Papazotl/light_off.jpg',
+        'images/Nangnang/light_off.jpg',
+        'images/Wongo/light_off.jpg'
+    ];
+
+    // Distribución inicial del tablero (0 = apagado, 1 = encendido)
+    const initialBoard = [
+        [1, 1, 0, 1, 1],
+        [1, 0, 0, 0, 1],
+        [0, 0, 0, 1, 0],
+        [1, 1, 0, 0, 0],
+        [1, 1, 1, 0, 1]
+    ];
+
+    const decitionalFinalBoard = [
+        [1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1]
+    ];
+
+    // Estado actual del tablero
+    let board = JSON.parse(JSON.stringify(initialBoard));  // Crear una copia del estado inicial
+
+    // Función para crear el tablero
+    function createBoard() {
+        const boardElement = document.getElementById('board');
+        boardElement.innerHTML = '';  // Limpiar el tablero
+
+        let innerIndex = 0;
+
+        for (let row = 0; row < SIZE; row++) {
+            for (let col = 0; col < SIZE; col++) {
+                const tile = document.createElement('div');
+                tile.classList.add('tile');
+                tile.dataset.row = row;
+                tile.dataset.col = col;
+
+                // Determinar si es borde o casilla interna
+                if (isEdgeTile(row, col)) {
+                    if (board[row][col] === 1) {
+                        tile.style.backgroundImage = `url(${edgeOnImage})`;
+                    } else {
+                        tile.style.backgroundImage = `url(${edgeOffImage})`;
+                    }
+                } else {
+                    if (board[row][col] === 1) {
+                        tile.style.backgroundImage = `url(${innerOnImages[innerIndex]})`;
+                    } else {
+                        tile.style.backgroundImage = `url(${innerOffImages[innerIndex]})`;
+                    }
+                    innerIndex++; // Incrementar el índice de imágenes internas
+                }
+
+                // Agregar evento de clic
+                tile.addEventListener('click', () => toggleLights(row, col));
+
+                boardElement.appendChild(tile);
+            }
+        }
+    }
+
+    // Función para identificar si una casilla es borde
+    function isEdgeTile(row, col) {
+        return row === 0 || row === SIZE - 1 || col === 0 || col === SIZE - 1;
+    }
+
+    function checkFinalBoard() {
+        for (let row = 0; row < SIZE; row++) {
+            for (let col = 0; col < SIZE; col++) {
+                if (board[row][col] !== decitionalFinalBoard[row][col]) {
+                    return false;  // Si una casilla no coincide, no es el estado final
+                }
+            }
+        }
+        return true;  // Si todas las casillas coinciden, es el estado final
+    }
+
+    // Función para cambiar el estado de una casilla y las adyacentes
+    function toggleLights(row, col) {
+        flipLight(row, col);
+        if (row > 0) flipLight(row - 1, col);  // Arriba
+        if (row < SIZE - 1) flipLight(row + 1, col);  // Abajo
+        if (col > 0) flipLight(row, col - 1);  // Izquierda
+        if (col < SIZE - 1) flipLight(row, col + 1);  // Derecha
+
+        // Reducir el contador de movimientos
+        document.getElementById('movesRemaining').innerText = movesRemaining - 1;
+        movesRemaining--;
+
+        // Si el contador llega a 0, reiniciar el tablero
+        if (movesRemaining === 0) {
+            if(checkFinalBoard()){
+                setTimeout(() => {
+                    alert('¡Has completado el tablero!');
+                }, 1000);
+            } else {
+                alert('¡NO!');
+            }
+            setTimeout(() => {
+                resetBoard();
+            }, 2000);
+        }
+    }
+
+    // Función para cambiar el estado de una casilla
+    function flipLight(row, col) {
+        const tile = document.querySelector(`[data-row='${row}'][data-col='${col}']`);
+        const isEdge = isEdgeTile(row, col);
+
+        if (board[row][col] === 1) {
+            board[row][col] = 0;
+            if (isEdge) {
+                tile.style.backgroundImage = `url(${edgeOffImage})`;
+            } else {
+                const innerIndex = getInnerIndex(row, col);
+                tile.style.backgroundImage = `url(${innerOffImages[innerIndex]})`;
+            }
+        } else {
+            board[row][col] = 1;
+            if (isEdge) {
+                tile.style.backgroundImage = `url(${edgeOnImage})`;
+            } else {
+                const innerIndex = getInnerIndex(row, col);
+                tile.style.backgroundImage = `url(${innerOnImages[innerIndex]})`;
+            }
+        }
+    }
+
+    // Función para obtener el índice de las imágenes internas
+    function getInnerIndex(row, col) {
+        const rowOffset = row - 1;
+        const colOffset = col - 1;
+        return rowOffset * (SIZE - 2) + colOffset;
+    }
+
+    // Función para reiniciar el tablero
+    function resetBoard() {
+        board = JSON.parse(JSON.stringify(initialBoard));  // Restablecer el estado inicial
+        createBoard();  // Recrear el tablero visualmente
+        movesRemaining = 5;  // Restablecer el contador de movimientos
+        document.getElementById('movesRemaining').innerText = movesRemaining;
+    }
+
+    // Crear el tablero al cargar la página
+    window.onload = createBoard;
+</script>
+
+</body>
+</html>
