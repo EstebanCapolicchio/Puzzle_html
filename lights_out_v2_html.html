@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lights Out</title>
+    <title>Tablero</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: blanchedalmond;
         }
         #board {
             display: grid;
@@ -32,9 +33,21 @@
 </head>
 <body>
 
-<h1>Lights Out</h1>
+<h1>Los Nueve Embaucadores</h1>
+<h4>Ellos vinieron a mi, suplicantes.</h4>
+<h4>Sus anhelos y ambisiones probaron ir</h4>
+<h4>mas alla de lo que se esperaría de unos dioses</h4>
+<h4>y por eso un trato les ofrecí</h4>
+<h4>No todos estaban convencidos de lo que debían hacer</h4>
+<h4>y eso les aseguró el final que predije terminarían</h4>
 <div id="board"></div>
-<p>Movimientos restantes: <span id="movesRemaining"></span></p>
+<h4>Los nueve embaucadores cayeron por 5 razones:</h4>
+<h4>1. [_______________]</h4>
+<h4>2. [_______________]</h4>
+<h4>3. [_______________]</h4>
+<h4>4. [_______________]</h4>
+<h4>5. [La indecisión de Unhk fue el último clavo de sus ataudes]</h4>
+<p><span id="movesRemaining"></span></p>
 
 <script>
     // Tamaño del tablero
@@ -42,7 +55,7 @@
 
     // Número inicial de movimientos
     let movesRemaining = 5;
-    document.getElementById('movesRemaining').innerText = movesRemaining;
+    document.getElementById('movesRemaining').innerText = "..";
 
     // Imágenes para las casillas
     const edgeOffImage = 'images/Human/light_on.jpg';
@@ -155,7 +168,7 @@
         if (col < SIZE - 1) flipLight(row, col + 1);  // Derecha
 
         // Reducir el contador de movimientos
-        document.getElementById('movesRemaining').innerText = movesRemaining - 1;
+        document.getElementById('movesRemaining').innerText = "";
         movesRemaining--;
 
         // Si el contador llega a 0, reiniciar el tablero
@@ -209,7 +222,7 @@
         board = JSON.parse(JSON.stringify(initialBoard));  // Restablecer el estado inicial
         createBoard();  // Recrear el tablero visualmente
         movesRemaining = 5;  // Restablecer el contador de movimientos
-        document.getElementById('movesRemaining').innerText = movesRemaining;
+        document.getElementById('movesRemaining').innerText = "";
     }
 
     // Crear el tablero al cargar la página
